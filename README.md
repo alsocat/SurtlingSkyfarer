@@ -148,11 +148,7 @@ for earlier versions.
 
 ## Testing and support
 
-0.1.5 passed **143 gameplay checks**, **14 separate-process save/reload checks**,
-and **6 dedicated-server startup/shutdown checks** on native Linux. The tested
-DLL is the one distributed here. Windows runtime and a flight with five actual
-clients have not been verified in those tests. This is an early release, and
-broader mod compatibility still needs testing.
+0.1.5 has been tested with windows and linux clients on a dedicated server with 4 people.
 
 If the plane is missing, check the hammer's Transport category, discovered
 materials, and `BepInEx/LogOutput.log`. A successful load includes:
