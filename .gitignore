@@ -1,0 +1,17 @@
+dist/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+.env
+.env.*
+bin/
+obj/
+*.pdb
+*.user
+.vs/
+.idea/
+.tools/
+.cache/
+profile/
+artifacts/

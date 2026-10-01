@@ -1,0 +1,15 @@
+{
+  "version": "0.1.5",
+  "dll_sha256": "6a4440b700fad7480161018cf367100fa2bab2a722dee5e682240df4ce047772",
+  "dll_build_time_utc": "2026-09-30T02:15:27+00:00",
+  "tested_game_version": "l-1.0.16",
+  "tested_unity_version": "6000.0.75f1",
+  "tested_platform": "Linux x86_64",
+  "validation": {
+    "gameplay_checks": 143,
+    "reload_checks": 14,
+    "dedicated_server_checks": 6,
+    "multi_client_flight_tested": false,
+    "windows_runtime_tested": false
+  }
+}

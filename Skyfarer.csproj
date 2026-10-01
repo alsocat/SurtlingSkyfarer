@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Wise.Skyfarer</AssemblyName>
+    <RootNamespace>Wise.Skyfarer</RootNamespace>
+    <Version>0.1.5</Version>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <ValheimPath Condition="'$(ValheimPath)' == ''">$(VALHEIM_PATH)</ValheimPath>
+    <GameManaged>$(ValheimPath)/valheim_Data/Managed</GameManaged>
+    <BepPath Condition="'$(BepPath)' == ''">$(BEPINEX_PATH)</BepPath>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="src/**/*.cs" />
+    <Reference Include="$(GameManaged)/assembly_*.dll" Private="false" />
+    <Reference Include="$(GameManaged)/UnityEngine*.dll" Private="false" />
+    <Reference Include="$(GameManaged)/Unity.InputSystem.dll" Private="false" />
+    <Reference Include="$(GameManaged)/Unity.TextMeshPro.dll" Private="false" />
+    <Reference Include="$(GameManaged)/UnityEngine.UI.dll" Private="false" />
+    <Reference Include="$(GameManaged)/SoftReferenceableAssets.dll" Private="false" />
+    <Reference Include="$(GameManaged)/Splatform*.dll" Private="false" />
+    <Reference Include="$(BepPath)/core/BepInEx.dll" Private="false" />
+    <Reference Include="$(BepPath)/core/0Harmony.dll" Private="false" />
+    <Reference Include="$(BepPath)/plugins/Jotunn/Jotunn.dll" Private="false" />
+  </ItemGroup>
+  <Target Name="ValidateBuildPaths" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(GameManaged)/assembly_valheim.dll')"
+           Text="Set ValheimPath (or VALHEIM_PATH) to your installed Valheim game folder." />
+    <Error Condition="!Exists('$(BepPath)/core/BepInEx.dll')"
+           Text="Set BepPath (or BEPINEX_PATH) to your BepInEx profile folder." />
+    <Error Condition="!Exists('$(BepPath)/plugins/Jotunn/Jotunn.dll')"
+           Text="Install Jotunn in the selected BepInEx profile under plugins/Jotunn/Jotunn.dll." />
+  </Target>
+</Project>
