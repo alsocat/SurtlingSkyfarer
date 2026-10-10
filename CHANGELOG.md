@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.6
+
+- Fix hammer dismantling: explicitly enable removal instead of inheriting the Karve prohibition. Normal workbench, ward, and occupancy checks remain.
+- Add a commented `Skyfarer.cfg` beside the DLL. Edit it before starting the game/server to change recipe materials, quantities, and powered top speed.
+- Synchronize server settings to multiplayer clients through Jötunn.
+- Validate recipe entries and bound speed to 10–100 m/s; defaults remain unchanged.
+
 ## 0.1.5
 
 - Pilot boarding transfers aircraft simulation ownership to the pilot.

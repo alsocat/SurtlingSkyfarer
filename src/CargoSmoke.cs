@@ -72,7 +72,7 @@ internal static class CargoSmoke
         // Keep the seven wood in this chest for the separate process reload.
 
         var doomed = UnityEngine.Object.Instantiate(AircraftFactory.Prefab,
-            plane.transform.position + Vector3.right * 20, Quaternion.identity).GetComponent<Aircraft>();
+            plane.transform.position + Vector3.right * 60, Quaternion.identity).GetComponent<Aircraft>();
         doomed.Body.isKinematic = true;
         var doomedHold = doomed.GetComponent<CargoHold>();
         deadline = Time.time + 5;
@@ -80,7 +80,41 @@ internal static class CargoSmoke
         check(doomedHold.Cargo, "Second aircraft receives a distinct cargo chest");
         var droppedCargo = doomedHold.Cargo;
         AddWood(droppedCargo.Container, 3, true);
-        doomed.GetComponent<WearNTear>().Remove();
+        var piece = doomed.GetComponent<Piece>();
+        piece.SetCreator(player.GetPlayerID(), Splatform.PlatformManager.DistributionPlatform.LocalUser.PlatformUserID);
+        var camera = GameCamera.instance.transform;
+        Vector3 cameraPosition = camera.position;
+        Quaternion cameraRotation = camera.rotation;
+        Vector3 aim = doomed.transform.position + Vector3.up * .2f;
+        player.transform.position = player.GetComponent<Rigidbody>().position = aim + Vector3.right * 4;
+        camera.position = aim + Vector3.right * 4;
+        camera.LookAt(aim);
+        Physics.SyncTransforms();
+        var remove = AccessTools.Method(typeof(Player), "RemovePiece");
+        check(!(bool)AccessTools.Method(typeof(Player), "CheckCanRemovePiece").Invoke(player, new object[] { piece }),
+            "Hammer retains the nearby-workbench requirement");
+        var bench = UnityEngine.Object.Instantiate(Jotunn.Managers.PrefabManager.Instance.GetPrefab("piece_workbench"),
+            aim + Vector3.right * 8, Quaternion.identity);
+        yield return null; // CraftingStation registers its range in Start.
+        camera.position = aim + Vector3.right * 4;
+        camera.LookAt(aim);
+        Physics.SyncTransforms();
+        check((bool)AccessTools.Method(typeof(Player), "CheckCanRemovePiece").Invoke(player, new object[] { piece }),
+            "Workbench becomes available after its Start lifecycle");
+        check(Physics.Raycast(camera.position, camera.forward, out var target, 50,
+            Traverse.Create(player).Field("m_removeRayMask").GetValue<int>()) &&
+            target.collider.GetComponentInParent<Piece>() == piece, "Actual hammer ray targets the aircraft hull");
+        check(Vector3.Distance(target.point, player.m_eye.position) < player.m_maxPlaceDistance,
+            "Hammer target is within the player's build reach");
+        check(!Location.IsInsideNoBuildLocation(piece.transform.position), "Hammer fixture is outside protected world locations");
+        check(PrivateArea.CheckAccess(piece.transform.position), "Hammer fixture permits ward access");
+        check(piece.CanBeRemoved(), "Empty aircraft permits removal through native occupancy check");
+        piece.m_canBeRemoved = false;
+        check(!(bool)remove.Invoke(player, null) && doomed, "Hammer reproduces rejection with inherited Karve removal flag");
+        piece.m_canBeRemoved = true;
+        check((bool)remove.Invoke(player, null), "Actual Player.RemovePiece hammer path dismantles empty aircraft near workbench");
+        camera.SetPositionAndRotation(cameraPosition, cameraRotation);
+        ZNetScene.instance.Destroy(bench);
         yield return new WaitForSeconds(1.5f);
         check(!doomed && !droppedCargo && UnityEngine.Object.FindObjectsByType<ItemDrop>(FindObjectsSortMode.None)
             .Any(drop => drop.m_itemData.m_stack == 3 && drop.m_itemData.m_customData.ContainsKey("skyfarer.smoke.cargo")),

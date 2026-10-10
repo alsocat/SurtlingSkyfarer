@@ -6,7 +6,7 @@ ten-slot cargo chest.
 
 ![Surtling Skyfarer icon](https://raw.githubusercontent.com/alsocat/SurtlingSkyfarer/main/icon.png)
 
-**Current version: 0.1.5** · [Download](https://github.com/alsocat/SurtlingSkyfarer/releases/latest)
+**Current version: 0.1.6** · [Download](https://github.com/alsocat/SurtlingSkyfarer/releases/latest)
 · [Report a bug](https://github.com/alsocat/SurtlingSkyfarer/issues)
 · [View the in-game aircraft](https://raw.githubusercontent.com/alsocat/SurtlingSkyfarer/main/media/skyfarer.png)
 
@@ -31,10 +31,11 @@ Install these on **every player's computer and on the server**:
 | --- | --- | --- |
 | BepInExPack Valheim | **5.4.2351** | [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/) |
 | Jötunn, the Valheim Library | **2.30.2** | [Jötunn](https://thunderstore.io/c/valheim/p/ValheimModding/Jotunn/) |
-| Surtling Skyfarer | **0.1.5** | [GitHub releases](https://github.com/alsocat/SurtlingSkyfarer/releases/latest) |
+| Surtling Skyfarer | **0.1.6** | [GitHub releases](https://github.com/alsocat/SurtlingSkyfarer/releases/latest) |
 
 Use the same Skyfarer version on all clients and the server. This release was
-tested against **Valheim l-1.0.16 / Unity 6000.0.75f1**.
+tested with the **Valheim l-1.0.17 client** and **l-1.0.16 dedicated server**,
+both using Unity **6000.0.75f1**.
 
 The Skyfarer download contains the mod itself. Install BepInEx and Jötunn
 separately; their files are not bundled. The package manifest declares both
@@ -48,7 +49,7 @@ dependencies for Thunderstore-compatible mod managers.
 2. Install **BepInExPack Valheim** using its instructions for your operating
    system. Launch once through BepInEx so its folders are created, then close it.
 3. Install **Jötunn** into the active `BepInEx/plugins` folder.
-4. Download `SurtlingSkyfarer-0.1.5.zip` from
+4. Download `SurtlingSkyfarer-0.1.6.zip` from
    [Releases](https://github.com/alsocat/SurtlingSkyfarer/releases/latest).
 5. Extract its `BepInEx` folder into the game or server folder. The mod DLL
    should end up at:
@@ -82,7 +83,7 @@ Windows and Linux clients and servers.
 
 Stop the server and close each player's game. Replace the existing
 `Wise.Skyfarer.dll`, then restart everyone on the same version. Updating from
-0.1.2, 0.1.3, or 0.1.4 to 0.1.5 does not require reinstalling BepInEx or Jötunn
+an earlier release to 0.1.6 does not require reinstalling BepInEx or Jötunn
 when the tested versions above are already installed. Existing aircraft gain
 the cargo chest when loaded.
 
@@ -98,6 +99,33 @@ Your character must discover the recipe materials first.
 | Copper | 25 |
 | Deer Hide | 20 |
 | Surtling Core | 8 |
+
+## Edit the recipe and speed
+
+Open `BepInEx/plugins/Skyfarer/Skyfarer.cfg` with any text editor **before
+starting the game or server**. Keep it beside `Wise.Skyfarer.dll`:
+
+```ini
+[Aircraft]
+TopSpeed = 22
+Recipe = FineWood:80,Copper:25,DeerHide:20,SurtlingCore:8
+```
+
+`TopSpeed` is the powered target in metres per second, from **10 to 100**.
+It affects forward flight and wheel drive; reverse stays at 4 m/s. Falling and
+collisions can briefly exceed this target. Use a dot for decimal values.
+
+`Recipe` accepts comma-separated **item prefab names and amounts**. You can
+change quantities or substitute materials, for example
+`Wood:100,Iron:30,SurtlingCore:8`. Names are case-sensitive. Use 1–16 distinct
+items, each with 1–10000 units. Invalid recipes fall back to the defaults and
+write a warning to the log. Characters still need to discover the materials.
+Dismantling refunds use the currently configured recipe, including old planes.
+
+Restart after edits. In multiplayer, edit the **server's** file: its settings
+are synchronized to clients through Jötunn. Local games use the local file.
+Settings apply to all Skyfarers, including existing ones. If the file is missing,
+the mod creates it with defaults. Preserve your edited file when updating.
 
 ## Controls
 
@@ -132,29 +160,29 @@ attacking, dodging, and crouching do not eject the pilot.
 These controls assume default game bindings. Throttle, pitch, roll, brakes,
 and dismount use their corresponding game actions; Q/E and R are dedicated keys.
 
-## Changes in 0.1.5
+## Changes in 0.1.6
 
-- The pilot owns and simulates the aircraft; vanilla boat ownership checks no
-  longer transfer it to seated passengers.
-- Seated heartbeats tolerate lagged player positions, while boarding distance
-  and disconnect cleanup remain enforced.
-- Empty-aircraft engine cutoff, ten-slot cargo, and the 25-Copper recipe.
-- Cargo remains linked to the plane across full world reloads.
-- Release archives preserve the DLL's actual build timestamp so BepInEx can
-  detect the update correctly.
+- Fix hammer dismantling by enabling removal on the aircraft prefab. Aim at the
+  hull while everyone is off the plane and a workbench is in range. Normal ward
+  protection still applies; cargo drops when the aircraft is dismantled.
+- Add `Skyfarer.cfg` beside the DLL for custom recipes and powered top speed.
+- Keep the current recipe and 22 m/s speed as defaults.
 
 See the [changelog](https://github.com/alsocat/SurtlingSkyfarer/blob/main/CHANGELOG.md)
 for earlier versions.
 
 ## Testing and support
 
-0.1.5 has been tested with windows and linux clients on a dedicated server with 4 people.
+Version 0.1.5 was tested with Windows and Linux clients on a dedicated server
+with four people. Version 0.1.6 passed **170 gameplay checks**, **16 save/reload checks**,
+and **6 dedicated-server startup checks** on Linux; a new multi-client flight
+and Windows runtime test have not been performed for this update.
 
 If the plane is missing, check the hammer's Transport category, discovered
 materials, and `BepInEx/LogOutput.log`. A successful load includes:
 
 ```text
-Loading [Surtling Skyfarer 0.1.5]
+Loading [Surtling Skyfarer 0.1.6]
 Skyfarer registered: 1 pilot, 4 passenger seats, 13.3 m wingspan.
 ```
 

@@ -301,7 +301,7 @@ public class Aircraft : MonoBehaviour
         if (grounded && (climb <= 0 || reverse)) support = 0;
         float gravity = Mathf.Max(.1f, -Physics.gravity.y);
         float verticalAccel = gravity * support;
-        Vector3 desired = forward * (throttle * 22f);
+        Vector3 desired = forward * (throttle * SkyfarerSettings.TopSpeed);
         if (throttle < .15f) desired += Vector3.down * 2.5f;
         if (!grounded)
             body.AddForce(Vector3.ClampMagnitude((desired - velocity) * 2.5f, 40f),

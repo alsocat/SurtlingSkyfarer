@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - .NET SDK 8; the tested release was built with **8.0.425**.
-- An installed copy of Valheim. This code targets **l-1.0.16**, with Unity
+- An installed copy of Valheim. This code targets **l-1.0.17**, with Unity
   **6000.0.75f1**; game updates can change the referenced APIs.
 - BepInExPack Valheim **5.4.2351** and Jötunn **2.30.2** in a local mod profile.
 - Python 3 if you want to recreate the release ZIP.
@@ -53,7 +53,7 @@ Output: `bin/Release/net48/Wise.Skyfarer.dll`.
 Close the game before replacing the DLL in a test profile. A source build does
 not overwrite the checked-in release DLL or the user's installed mod. Different
 SDKs, paths, or source changes can produce a different binary hash; the published
-0.1.5 download is pinned by `release.json` to its tested binary.
+0.1.6 download is pinned by `release.json` to its tested binary.
 
 ## Implementation
 
@@ -61,16 +61,21 @@ SDKs, paths, or source changes can produce a different binary hash; the publishe
   procedural geometry, registers its recipe, and creates five seats.
 - `Aircraft`, `SkySeat`, and `Patches` handle flight, input, authenticated seats,
   aircraft-specific ownership behavior, and damage immunity.
+- `SkyfarerSettings` loads the adjacent text config, validates recipes, and mirrors
+  settings into Jötunn-managed entries for server synchronization.
 - `LandingGear` provides the four WheelColliders, steering, and wheel visuals.
 - `CargoHold` and `CargoLinks` add a separately owned chest with a saved GUID
   link that survives Valheim's object-ID remapping on world load.
 
 ## Validation
 
-The published 0.1.5 DLL passed 143 real-game checks, 14 checks after a separate
-process reloaded the saved world, and 6 Linux dedicated-server startup/shutdown
-checks. The corresponding C# source is included. Ownership fixtures simulate
-peer IDs inside one client; they do not establish multi-client flight behavior.
+Version 0.1.6 passed 170 real-game checks on the Linux Valheim l-1.0.17 client,
+including the actual hammer removal ray/path, cargo drops, recipe validation,
+and measured flight at a custom 35 m/s target. The cached l-1.0.16 Linux
+server passed six startup/shutdown checks. See `release.json` for the exact
+shipped DLL hash and separate-process reload results. Ownership fixtures
+simulate peer IDs inside one client; no new multi-client flight or Windows
+runtime test was performed for this update.
 
 `RuntimeSmoke` and the `*Smoke` fixtures are opt-in developer code. To run them,
 launch a separate BepInEx test profile with the mod installed and set:
@@ -86,6 +91,10 @@ flags for headless tests, with a separate profile, cache, logs, and save folder.
 The harness creates a test character/world and exits the game after completion.
 Never point it at normal player saves. For the reload check, launch a second
 process using the same isolated saves and add `SKYFARER_CONTROL_RELOAD=1`.
+To also check loading edited settings, change the test profile's adjacent
+`Skyfarer.cfg` to `TopSpeed = 31` and the test recipe specified in
+`RuntimeSmoke`, then set
+`SKYFARER_SETTINGS_RELOAD=1` for the reload run.
 All tests should finish with `SKYFARER_SMOKE_PASS` and no `FAIL` lines.
 
 Normal launches do not set these variables and do not run the test harness.

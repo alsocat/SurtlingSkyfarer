@@ -12,6 +12,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "dist"
 DLL = "BepInEx/plugins/Skyfarer/Wise.Skyfarer.dll"
+CONFIG = "BepInEx/plugins/Skyfarer/Skyfarer.cfg"
 
 
 def sha256(data):
@@ -32,7 +33,7 @@ def main():
     ]
     assert release["version"] == version
     # Explicit allowlist: no dependency binaries, game files, saves, or logs.
-    names = ["README.md", "CHANGELOG.md", "manifest.json", "icon.png", DLL]
+    names = ["README.md", "CHANGELOG.md", "manifest.json", "icon.png", DLL, CONFIG]
     files = {name: (ROOT / name).read_bytes() for name in names}
     assert sha256(files[DLL]) == release["dll_sha256"], "DLL differs from the recorded tested build"
     png = files["icon.png"]
@@ -66,7 +67,8 @@ def main():
         assert info.extra == struct.pack("<HHBI", 0x5455, 5, 1, int(build_time))
     (OUT / "SHA256SUMS.txt").write_text(
         f"{sha256(archive.read_bytes())}  {archive.name}\n"
-        f"{release['dll_sha256']}  Wise.Skyfarer.dll\n", encoding="utf-8"
+        f"{release['dll_sha256']}  Wise.Skyfarer.dll\n"
+        f"{sha256(files[CONFIG])}  Skyfarer.cfg\n", encoding="utf-8"
     )
     print(f"PASS: {archive.name} ({archive.stat().st_size:,} bytes)")
     print("PASS: manifest, 256x256 PNG, UTF-8 docs, archive contents and checksums")

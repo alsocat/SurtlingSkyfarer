@@ -78,8 +78,35 @@ public class RuntimeSmoke : MonoBehaviour
             Check(saved && Mathf.Abs(saved.Throttle - .57f) < .001f, "Saved partial throttle restored after restarting the game");
             Check(saved.Occupant(0) == 0, "Reloaded aircraft retains an empty pilot seat");
             yield return CargoSmoke.Reload(saved, Check);
-            yield return new WaitForSeconds(8);
-            Check(!saved.HasRiders() && saved.Throttle == 0, "Reloaded aircraft cuts power after its absent passenger lease expires");
+            if (Environment.GetEnvironmentVariable("SKYFARER_SETTINGS_RELOAD") == "1")
+            {
+                Check(SkyfarerSettings.TopSpeed == 31, "Restart loads 31 m/s from the config beside the DLL");
+                var costs = saved.GetComponent<Piece>().m_resources;
+                Check(costs.Length == 2 && costs.Any(r => r.m_resItem.name == "Wood" && r.m_amount == 12)
+                    && costs.Any(r => r.m_resItem.name == "Stone" && r.m_amount == 3),
+                    "Restart applies edited material recipe to a saved aircraft");
+            }
+            // Keep the moving aircraft streamed while waiting for ownership and
+            // its six-second seat lease. A higher configured speed can carry it
+            // beyond the original, stationary test observer's active area.
+            float cutoffDeadline = Time.time + 20;
+            float diagnosticTime = 0;
+            while (saved && saved.IsValid && (saved.HasRiders() || saved.Throttle != 0) && Time.time < cutoffDeadline)
+            {
+                player.transform.position = reloadBody.position = saved.transform.position + new Vector3(30, 3, 0);
+                reloadBody.linearVelocity = Vector3.zero;
+                Physics.SyncTransforms();
+                player.GetComponent<ZSyncTransform>().SyncNow();
+                ZNet.instance.SetReferencePosition(player.transform.position);
+                if (Time.time >= diagnosticTime)
+                {
+                    diagnosticTime = Time.time + 1;
+                    Plugin.Log.LogInfo($"RELOAD_CUTOFF owner={saved.GetComponent<ZNetView>().IsOwner()} riders={saved.HasRiders()} throttle={saved.Throttle} position={saved.transform.position}");
+                }
+                yield return null;
+            }
+            Check(saved && saved.IsValid && !saved.HasRiders() && saved.Throttle == 0,
+                "Reloaded aircraft cuts power after its absent passenger lease expires");
             completed = true;
             File.AppendAllText(output, "SKYFARER_SMOKE_PASS\n");
             Application.Quit();
@@ -97,6 +124,7 @@ public class RuntimeSmoke : MonoBehaviour
         Check(recipe.Any(r => r.m_resItem.name == "Copper" && r.m_amount == 25) && !recipe.Any(r => r.m_resItem.name == "Iron"),
             "Recipe requires 25 Copper and no Iron");
         yield return CargoSmoke.Run(plane, player, Check);
+        yield return SettingsSmoke.Run(plane, player, Check);
         OwnershipSmoke.Run(plane, player, Check);
         player.transform.position = plane.Seats[0].AttachPoint.position;
         plane.RequestSeat(0);

@@ -51,6 +51,7 @@ internal static class AircraftFactory
         var piece = root.GetComponent<Piece>();
         piece.m_name = "Surtling Skyfarer";
         piece.m_description = "A core-fired skyboat with woven wings. One pilot and four passengers.";
+        piece.m_canBeRemoved = true; // Karve disables hammer dismantling by default.
         piece.m_waterPiece = false;
         piece.m_groundOnly = false;
         piece.m_noInWater = false;

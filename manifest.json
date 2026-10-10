@@ -1,6 +1,6 @@
 {
   "name": "SurtlingSkyfarer",
-  "version_number": "0.1.5",
+  "version_number": "0.1.6",
   "website_url": "https://github.com/alsocat/SurtlingSkyfarer",
   "description": "A Surtling-powered wooden airplane for one pilot and four passengers. Wagon wheels, aerobatics, ten-slot cargo, and an indestructible hull.",
   "dependencies": [

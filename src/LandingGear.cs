@@ -29,7 +29,7 @@ public class LandingGear : MonoBehaviour
         Vector3 normal = Vector3.zero;
         float speed = body.linearVelocity.magnitude;
         float forwardSpeed = Vector3.Dot(body.linearVelocity, transform.forward);
-        float drive = Mathf.Clamp(((reverse ? -4f : throttle * 22f) - forwardSpeed) * .7f, -5, 5);
+        float drive = Mathf.Clamp(((reverse ? -4f : throttle * SkyfarerSettings.TopSpeed) - forwardSpeed) * .7f, -5, 5);
         float angle = steering * Mathf.Lerp(28, 12, Mathf.InverseLerp(2, 18, speed));
         Braking = wheelBrake || (throttle < .03f && !reverse);
         view.GetZDO().Set(SteeringKey, angle);
