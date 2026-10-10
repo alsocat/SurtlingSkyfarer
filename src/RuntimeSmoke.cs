@@ -78,6 +78,7 @@ public class RuntimeSmoke : MonoBehaviour
             Check(saved && Mathf.Abs(saved.Throttle - .57f) < .001f, "Saved partial throttle restored after restarting the game");
             Check(saved.Occupant(0) == 0, "Reloaded aircraft retains an empty pilot seat");
             yield return CargoSmoke.Reload(saved, Check);
+            if (Environment.GetEnvironmentVariable("SKYFARER_DURABILITY_RELOAD") == "1") DurabilitySmoke.Reload(saved, Check);
             if (Environment.GetEnvironmentVariable("SKYFARER_SETTINGS_RELOAD") == "1")
             {
                 Check(SkyfarerSettings.TopSpeed == 31, "Restart loads 31 m/s from the config beside the DLL");
@@ -124,6 +125,7 @@ public class RuntimeSmoke : MonoBehaviour
         Check(recipe.Any(r => r.m_resItem.name == "Copper" && r.m_amount == 25) && !recipe.Any(r => r.m_resItem.name == "Iron"),
             "Recipe requires 25 Copper and no Iron");
         yield return CargoSmoke.Run(plane, player, Check);
+        yield return DurabilitySmoke.Run(plane, Check);
         yield return SettingsSmoke.Run(plane, player, Check);
         OwnershipSmoke.Run(plane, player, Check);
         player.transform.position = plane.Seats[0].AttachPoint.position;
@@ -316,6 +318,7 @@ public class RuntimeSmoke : MonoBehaviour
         Check(finalCargo && finalCargo.Container.GetInventory().CountItems("$item_wood") == 7 &&
             Vector3.Distance(finalCargo.GetComponent<ZNetView>().GetZDO().GetPosition(), plane.transform.TransformPoint(CargoHold.Offset)) < .5f,
             "Cargo contents and saved streaming position stay with the plane through the full flight suite");
+        DurabilitySmoke.PrepareSave(plane, Check);
         DateTime saveStarted = DateTime.UtcNow;
         ZNet.instance.Save(true);
         string worldPath = Path.Combine(saves, "worlds_local", "SkyfarerSmoke");

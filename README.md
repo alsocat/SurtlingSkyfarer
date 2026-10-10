@@ -6,9 +6,17 @@ ten-slot cargo chest.
 
 ![Surtling Skyfarer icon](https://raw.githubusercontent.com/alsocat/SurtlingSkyfarer/main/icon.png)
 
-**Current version: 0.1.6** · [Download](https://github.com/alsocat/SurtlingSkyfarer/releases/latest)
+**Current version: 0.1.7** · [Download](https://github.com/alsocat/SurtlingSkyfarer/releases/latest)
 · [Report a bug](https://github.com/alsocat/SurtlingSkyfarer/issues)
 · [View the in-game aircraft](https://raw.githubusercontent.com/alsocat/SurtlingSkyfarer/main/media/skyfarer.png)
+
+## New in 0.1.7: optional durability
+
+Keep your Skyfarer indestructible, or enable damage and choose its maximum
+health in `Skyfarer.cfg`. **Durability is off by default**, so existing players
+keep the same behavior. When enabled, attacks, fire, and crashes can damage or
+destroy the aircraft; repair it with the hammer. Cargo drops if the plane breaks.
+Existing aircraft keep their health percentage when maximum health changes.
 
 ## Features
 
@@ -20,7 +28,7 @@ ten-slot cargo chest.
   everyone leaves, power cuts out and the plane slows and descends.
 - A normal wooden chest's **10 storage slots**. Cargo saves with the plane and
   drops when you deliberately dismantle it.
-- An **indestructible** hull and unlimited core power. Collisions still apply;
+- An **indestructible-by-default** hull, optional configurable durability, and unlimited core power. Collisions still apply;
   hammer dismantling remains available. The hull floats for water landings.
 
 ## Requirements
@@ -31,7 +39,7 @@ Install these on **every player's computer and on the server**:
 | --- | --- | --- |
 | BepInExPack Valheim | **5.4.2351** | [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/) |
 | Jötunn, the Valheim Library | **2.30.2** | [Jötunn](https://thunderstore.io/c/valheim/p/ValheimModding/Jotunn/) |
-| Surtling Skyfarer | **0.1.6** | [GitHub releases](https://github.com/alsocat/SurtlingSkyfarer/releases/latest) |
+| Surtling Skyfarer | **0.1.7** | [GitHub releases](https://github.com/alsocat/SurtlingSkyfarer/releases/latest) |
 
 Use the same Skyfarer version on all clients and the server. This release was
 tested with the **Valheim l-1.0.17 client** and **l-1.0.16 dedicated server**,
@@ -49,7 +57,7 @@ dependencies for Thunderstore-compatible mod managers.
 2. Install **BepInExPack Valheim** using its instructions for your operating
    system. Launch once through BepInEx so its folders are created, then close it.
 3. Install **Jötunn** into the active `BepInEx/plugins` folder.
-4. Download `SurtlingSkyfarer-0.1.6.zip` from
+4. Download `SurtlingSkyfarer-0.1.7.zip` from
    [Releases](https://github.com/alsocat/SurtlingSkyfarer/releases/latest).
 5. Extract its `BepInEx` folder into the game or server folder. The mod DLL
    should end up at:
@@ -83,7 +91,7 @@ Windows and Linux clients and servers.
 
 Stop the server and close each player's game. Replace the existing
 `Wise.Skyfarer.dll`, then restart everyone on the same version. Updating from
-an earlier release to 0.1.6 does not require reinstalling BepInEx or Jötunn
+an earlier release to 0.1.7 does not require reinstalling BepInEx or Jötunn
 when the tested versions above are already installed. Existing aircraft gain
 the cargo chest when loaded.
 
@@ -100,19 +108,33 @@ Your character must discover the recipe materials first.
 | Deer Hide | 20 |
 | Surtling Core | 8 |
 
-## Edit the recipe and speed
+## Edit durability, health, recipe, and speed
 
 Open `BepInEx/plugins/Skyfarer/Skyfarer.cfg` with any text editor **before
 starting the game or server**. Keep it beside `Wise.Skyfarer.dll`:
 
 ```ini
 [Aircraft]
+DurabilityEnabled = false
+MaxHealth = 1800
 TopSpeed = 22
 Recipe = FineWood:80,Copper:25,DeerHide:20,SurtlingCore:8
 ```
 
+`DurabilityEnabled = false` keeps the plane immune to damage. Set it to `true`
+to allow damage and destruction. `MaxHealth` sets its maximum health, from **1
+to 1000000**, with **1800** as the default. Use the hammer to repair damage.
+Structural and roof-exposure wear remain disabled so flight needs no building
+supports or roof. Changing the maximum preserves current health percentage;
+disabling durability prevents further damage but does not heal existing damage.
+
+Older config files automatically gain the missing durability entries on startup
+without changing your recipe, speed, or comments. You can also add the two new
+entries manually under `[Aircraft]` before starting the updated game/server.
+
 `TopSpeed` is the powered target in metres per second, from **10 to 100**.
-It affects forward flight and wheel drive; reverse stays at 4 m/s. Falling and
+It affects forward flight and wheel drive; reverse stays at 4 m/s. Dedicated
+servers may struggle at 100 m/s; lower it if you notice lag or rubber-banding. Falling and
 collisions can briefly exceed this target. Use a dot for decimal values.
 
 `Recipe` accepts comma-separated **item prefab names and amounts**. You can
@@ -174,7 +196,7 @@ for earlier versions.
 ## Testing and support
 
 Version 0.1.5 was tested with Windows and Linux clients on a dedicated server
-with four people. Version 0.1.6 passed **170 gameplay checks**, **16 save/reload checks**,
+with four people. Version 0.1.7 passed **192 gameplay checks**, **17 save/reload checks**,
 and **6 dedicated-server startup checks** on Linux; a new multi-client flight
 and Windows runtime test have not been performed for this update.
 
@@ -182,7 +204,7 @@ If the plane is missing, check the hammer's Transport category, discovered
 materials, and `BepInEx/LogOutput.log`. A successful load includes:
 
 ```text
-Loading [Surtling Skyfarer 0.1.6]
+Loading [Surtling Skyfarer 0.1.7]
 Skyfarer registered: 1 pilot, 4 passenger seats, 13.3 m wingspan.
 ```
 

@@ -65,6 +65,7 @@ public class Aircraft : MonoBehaviour
         view.Register<long, int>("Skyfarer.Heartbeat", RPC_Heartbeat);
         view.Register<long, Vector3, float, bool, bool>("Skyfarer.Input", RPC_Input);
         throttle = StoredThrottle();
+        AircraftDurability.Apply(this);
         body.centerOfMass = new Vector3(0, -.2f, 0);
     }
 
@@ -236,6 +237,8 @@ public class Aircraft : MonoBehaviour
 
     internal void PhysicsStep(float dt)
     {
+        if (IsValid && view.IsOwner() && view.GetZDO().GetFloat(AircraftDurability.MaxHealthKey) != SkyfarerSettings.MaxHealth.Value)
+            AircraftDurability.Apply(this);
         if (!IsValid || !view.IsOwner()) { wasOwner = false; return; }
         if (!wasOwner)
         {

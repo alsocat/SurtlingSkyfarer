@@ -53,7 +53,7 @@ Output: `bin/Release/net48/Wise.Skyfarer.dll`.
 Close the game before replacing the DLL in a test profile. A source build does
 not overwrite the checked-in release DLL or the user's installed mod. Different
 SDKs, paths, or source changes can produce a different binary hash; the published
-0.1.6 download is pinned by `release.json` to its tested binary.
+0.1.7 download is pinned by `release.json` to its tested binary.
 
 ## Implementation
 
@@ -69,13 +69,13 @@ SDKs, paths, or source changes can produce a different binary hash; the publishe
 
 ## Validation
 
-Version 0.1.6 passed 170 real-game checks on the Linux Valheim l-1.0.17 client,
-including the actual hammer removal ray/path, cargo drops, recipe validation,
-and measured flight at a custom 35 m/s target. The cached l-1.0.16 Linux
-server passed six startup/shutdown checks. See `release.json` for the exact
-shipped DLL hash and separate-process reload results. Ownership fixtures
-simulate peer IDs inside one client; no new multi-client flight or Windows
-runtime test was performed for this update.
+Version 0.1.7 passed 192 real-game checks on the Linux Valheim l-1.0.17 client,
+including enabled/disabled damage, custom maximum health, health-percentage
+preservation, native repairs, real crash damage, destruction with cargo drops,
+and the previous flight, ownership, hammer, recipe, and speed checks.
+See `release.json` for the exact shipped DLL hash and reload/server results.
+Ownership fixtures simulate peer IDs inside one client; no new multi-client
+flight or Windows runtime test was performed for this update.
 
 `RuntimeSmoke` and the `*Smoke` fixtures are opt-in developer code. To run them,
 launch a separate BepInEx test profile with the mod installed and set:
@@ -95,6 +95,10 @@ To also check loading edited settings, change the test profile's adjacent
 `Skyfarer.cfg` to `TopSpeed = 31` and the test recipe specified in
 `RuntimeSmoke`, then set
 `SKYFARER_SETTINGS_RELOAD=1` for the reload run.
+For the durability reload check, save through the current full suite (which
+leaves the plane at half health), then use a test config with
+`DurabilityEnabled = true`, `MaxHealth = 3600`, and set
+`SKYFARER_DURABILITY_RELOAD=1` along with `SKYFARER_CONTROL_RELOAD=1`.
 All tests should finish with `SKYFARER_SMOKE_PASS` and no `FAIL` lines.
 
 Normal launches do not set these variables and do not run the test harness.

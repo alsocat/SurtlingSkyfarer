@@ -58,7 +58,7 @@ internal static class AircraftFactory
         piece.m_notOnTiltingSurface = true;
         piece.m_usage = Piece.UsageTagFlags.Transport;
         var wear = root.GetComponent<WearNTear>();
-        wear.m_health = 1800;
+        wear.m_health = SkyfarerSettings.MaxHealth.Value;
         // These mean "wear when there is no roof/support", not immunity.
         wear.m_noRoofWear = false;
         wear.m_noSupportWear = false;

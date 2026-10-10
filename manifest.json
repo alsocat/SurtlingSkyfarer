@@ -1,8 +1,8 @@
 {
   "name": "SurtlingSkyfarer",
-  "version_number": "0.1.6",
+  "version_number": "0.1.7",
   "website_url": "https://github.com/alsocat/SurtlingSkyfarer",
-  "description": "A Surtling-powered wooden airplane for one pilot and four passengers. Wagon wheels, aerobatics, ten-slot cargo, and an indestructible hull.",
+  "description": "A Surtling-powered wooden airplane for one pilot and four passengers. Wagon wheels, aerobatics, ten-slot cargo, and optional configurable durability (off by default).",
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.2351",
     "ValheimModding-Jotunn-2.30.2"

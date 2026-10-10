@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.7
+
+- Add `DurabilityEnabled` (default false) and `MaxHealth` (default 1800) to the adjacent config file.
+- Enable normal health damage, destruction, and hammer repairs when durability is on, including crash damage.
+- Preserve each aircraft's health percentage when maximum health changes, including saved aircraft from earlier versions.
+- Keep structural and roof-exposure wear disabled for flight. Disabling durability does not automatically repair damage.
+- Synchronize durability and maximum health through Jötunn's server settings.
+- Add missing durability entries to old configs without replacing custom recipe/speed values or comments.
+
 ## 0.1.6
 
 - Fix hammer dismantling: explicitly enable removal instead of inheriting the Karve prohibition. Normal workbench, ward, and occupancy checks remain.

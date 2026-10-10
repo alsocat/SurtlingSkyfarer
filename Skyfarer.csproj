@@ -4,7 +4,7 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>Wise.Skyfarer</AssemblyName>
     <RootNamespace>Wise.Skyfarer</RootNamespace>
-    <Version>0.1.6</Version>
+    <Version>0.1.7</Version>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <ValheimPath Condition="'$(ValheimPath)' == ''">$(VALHEIM_PATH)</ValheimPath>
     <GameManaged>$(ValheimPath)/valheim_Data/Managed</GameManaged>

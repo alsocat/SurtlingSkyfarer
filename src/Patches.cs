@@ -73,12 +73,12 @@ internal static class AircraftSeatRotationPatch
     }
 }
 
-// Keep collision physics and deliberate hammer removal, but reject all health damage.
+// Damage is opt-in; hammer removal remains available in either mode.
 // RPC_Damage covers attacks/impacts; ApplyDamage also covers direct environmental wear.
 [HarmonyPatch(typeof(WearNTear), "RPC_Damage")]
 internal static class AircraftHitImmunityPatch
 {
-    private static bool Prefix(WearNTear __instance) => !__instance.GetComponent<Aircraft>();
+    private static bool Prefix(WearNTear __instance) => !__instance.GetComponent<Aircraft>() || SkyfarerSettings.DurabilityEnabled.Value;
 }
 
 [HarmonyPatch(typeof(WearNTear), nameof(WearNTear.ApplyDamage))]
@@ -86,7 +86,7 @@ internal static class AircraftWearImmunityPatch
 {
     private static bool Prefix(WearNTear __instance, ref bool __result)
     {
-        if (!__instance.GetComponent<Aircraft>()) return true;
+        if (!__instance.GetComponent<Aircraft>() || SkyfarerSettings.DurabilityEnabled.Value) return true;
         __result = false;
         return false;
     }
