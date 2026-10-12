@@ -228,7 +228,7 @@ dependency binaries, and development saves are not included in the mod package.
 
 ## License
 
-Copyright (C) 2026 Conner Wise and Jeremy Wise.
+Copyright (C) 2026 alsocat and moderncanvas.
 
 Surtling Skyfarer is free software under the
 [GNU General Public License v3.0](https://github.com/alsocat/SurtlingSkyfarer/blob/main/LICENSE).
