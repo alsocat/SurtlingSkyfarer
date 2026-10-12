@@ -33,7 +33,7 @@ def main():
     ]
     assert release["version"] == version
     # Explicit allowlist: no dependency binaries, game files, saves, or logs.
-    names = ["README.md", "CHANGELOG.md", "manifest.json", "icon.png", DLL, CONFIG]
+    names = ["README.md", "CHANGELOG.md", "LICENSE", "manifest.json", "icon.png", DLL, CONFIG]
     files = {name: (ROOT / name).read_bytes() for name in names}
     assert sha256(files[DLL]) == release["dll_sha256"], "DLL differs from the recorded tested build"
     png = files["icon.png"]

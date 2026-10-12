@@ -225,3 +225,14 @@ for recreating the GitHub/Thunderstore package.
 Unofficial community mod, unaffiliated with Iron Gate. Each player needs their
 own installed copy of Valheim. Game assemblies, extracted game assets,
 dependency binaries, and development saves are not included in the mod package.
+
+## License
+
+Copyright (C) 2026 Conner Wise and Jeremy Wise.
+
+Surtling Skyfarer is free software under the
+[GNU General Public License v3.0](https://github.com/alsocat/SurtlingSkyfarer/blob/main/LICENSE).
+You may fork, modify, and redistribute it, including as part of another mod,
+as long as you credit the original authors, link back to this repository, and
+release your modified source under the same license. Builds published without
+their source are not permitted.
