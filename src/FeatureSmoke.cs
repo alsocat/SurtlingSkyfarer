@@ -57,7 +57,6 @@ internal static class FeatureSmoke
         check(Vector3.Distance(mesh.vertices[0], mesh.vertices[5]) > .01f, "Front and back wing surfaces are separated to prevent depth fighting");
         var material = plane.GetComponentsInChildren<MeshRenderer>().First(m => m.name.StartsWith("Stitched wing")).sharedMaterial;
         check(material.shader && !material.shader.name.Contains("Particle") && (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null || material.shader.isSupported), "Cloth uses a supported item material shader: " + material.shader.name);
-        check(SkyfarerSettings.VtolEnabled.Value, "VTOL availability defaults on");
         var ward = UnityEngine.Object.Instantiate(Jotunn.Managers.PrefabManager.Instance.GetPrefab("guard_stone"), start + Vector3.right * 5, Quaternion.identity);
         ward.GetComponent<Piece>().SetCreator(player.GetPlayerID(), Splatform.PlatformManager.DistributionPlatform.LocalUser.PlatformUserID);
         ward.GetComponent<ZNetView>().GetZDO().Set(ZDOVars.s_enabled, true);
@@ -87,7 +86,22 @@ internal static class FeatureSmoke
         yield return new WaitForSeconds(.2f);
         check(cargo.GetComponent<ZNetView>().GetZDO().GetBool(CargoUpgrades.WispKey) && cargo.Container.GetInventory().CountItems("$item_wisp") == 0, "Binding a wisp consumes one item and persists on the cargo record");
         var mist = plane.GetComponent<AircraftServices>().Mist;
-        check(mist && Demister.GetDemisters().Contains(mist) && mist.m_forceField.endRange == 25, "Bound wisp registers a native 25 metre mist-clearing volume");
+        check(mist && Demister.GetDemisters().Contains(mist) && mist.m_forceField.endRange == 35, "Bound wisp registers a larger native 35 metre mist-clearing volume");
+        Vector3 localCentre = plane.transform.InverseTransformPoint(mist.transform.position);
+        check(Mathf.Abs(localCentre.z - 10.6f) < .05f,
+            "Wisp clearing centre is about 20 feet beyond the nose, while visible wisp stays aboard");
+        var particleMist = UnityEngine.Object.FindFirstObjectByType<ParticleMist>();
+        check(particleMist, "Native particle mist system is available for clearing checks");
+        var inside = AccessTools.Method(typeof(ParticleMist), "InsideDemister");
+        check((bool)inside.Invoke(particleMist, new object[] { plane.transform.TransformPoint(new Vector3(0, 3.6f, 40)) }),
+            "Native mist system clears well ahead of the plane before it arrives");
+        check(!(bool)inside.Invoke(particleMist, new object[] { plane.transform.TransformPoint(new Vector3(0, 3.6f, -40)) }),
+            "Expanded mist clearing favours the front rather than the rear");
+        Quaternion previousRotation = plane.transform.rotation;
+        plane.transform.rotation = plane.Body.rotation = Quaternion.Euler(0, 90, 0);
+        check((bool)inside.Invoke(particleMist, new object[] { plane.transform.TransformPoint(new Vector3(0, 3.6f, 40)) }),
+            "Forward mist clearing turns with the aircraft");
+        plane.transform.rotation = plane.Body.rotation = previousRotation;
         Add(cargo.Container, "Coal", 3);
         var coal = cargo.Container.GetInventory().GetAllItems().Single(i => i.m_shared.m_name == "$item_coal");
         coal.m_gridPos = new Vector2i(4, 5);
@@ -95,39 +109,7 @@ internal static class FeatureSmoke
         Move(player, plane.Seats[0].AttachPoint.position);
         plane.RequestSeat(0);
         yield return new WaitForSeconds(.2f);
-        plane.ToggleVtol();
-        yield return null;
-        check(plane.VtolActive, "Seated pilot can toggle VTOL");
         check(plane.TryUnstuck().StartsWith("Park"), "Unstuck refuses an occupied aircraft");
-        var platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        platform.layer = LayerMask.NameToLayer("static_solid");
-        platform.transform.position = plane.transform.position + Vector3.down * 1.6f;
-        platform.transform.localScale = new Vector3(40, .2f, 40);
-        plane.ToggleVtol();
-        yield return null;
-        plane.Body.isKinematic = false;
-        yield return new WaitForSeconds(1);
-        check(plane.Gear.GroundedCount >= 2, "VTOL test starts with wheels resting on a solid platform");
-        plane.ToggleVtol();
-        yield return null;
-        Vector3 takeoff = plane.transform.position;
-        float end = Time.time + 2;
-        while (Time.time < end)
-        {
-            Invoke(plane, "RPC_VtolInput", view.GetZDO().GetOwner(), player.GetPlayerID(), new Vector3(0, 1, 0));
-            yield return new WaitForFixedUpdate();
-        }
-        UnityEngine.Object.Destroy(platform);
-        check(plane.transform.position.y > takeoff.y + 4 && Vector3.ProjectOnPlane(plane.transform.position - takeoff, Vector3.up).magnitude < 1, "VTOL rises vertically from rest without a runway");
-        Invoke(plane, "RPC_VtolInput", view.GetZDO().GetOwner(), player.GetPlayerID(), Vector3.zero);
-        yield return new WaitForSeconds(2);
-        check(Mathf.Abs(plane.Body.linearVelocity.y) < .2f, "Neutral VTOL input holds altitude");
-        SkyfarerSettings.VtolEnabled.Value = false;
-        check(!plane.VtolActive, "Server config disables active VTOL");
-        SkyfarerSettings.VtolEnabled.Value = true;
-        plane.ToggleVtol();
-        yield return null;
-        check(!plane.VtolActive, "Pilot can return to conventional flight");
         player.StopDoodadControl();
         Move(player, plane.transform.position + Vector3.right * 20);
         plane.Body.isKinematic = true;
@@ -216,6 +198,9 @@ internal static class FeatureSmoke
         check(inventory.GetHeight() == 6 && inventory.GetAllItems().Any(i => i.m_shared.m_name == "$item_coal" && i.m_gridPos == new Vector2i(4, 5)), "Expanded last-row cargo survives streaming/reload without loss");
         deadline = Time.time + 3;
         while (!plane.GetComponent<AircraftServices>().Mist && Time.time < deadline) yield return null;
-        check(plane.GetComponent<AircraftServices>().Mist, "Bound wisp returns when the aircraft reloads");
+        var mist = plane.GetComponent<AircraftServices>().Mist;
+        check(mist && mist.m_forceField.endRange == 35 &&
+            Mathf.Abs(plane.transform.InverseTransformPoint(mist.transform.position).z - 10.6f) < .05f,
+            "Saved wisp returns with the expanded forward clearing area");
     }
 }

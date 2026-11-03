@@ -74,4 +74,7 @@ Use a new version for each new DLL. Update the manifest, README, changelog, and
 `release.json` together. Record the actual build's SHA256, UTC modification
 time, and completed validation in `release.json`. Preserve the DLL build time
 when making ZIPs: BepInEx uses modification times when caching plugin metadata.
-Never replace a published package version with a different DLL.
+The playtest revision of 0.1.8 intentionally retains its version number. Its
+updated release assets, source tag and `release.json` must all refer to the same
+revised build; replace the DLL on every client and server. Use a new version for
+subsequent releases unless an existing-version revision is explicitly requested.

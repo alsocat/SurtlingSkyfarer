@@ -10,21 +10,21 @@ cargo chest upgradeable from 10 to 30 slots.
 · [Report a bug](https://github.com/alsocat/SurtlingSkyfarer/issues)
 · [View the in-game aircraft](https://raw.githubusercontent.com/alsocat/SurtlingSkyfarer/main/media/skyfarer.png)
 
-## New in 0.1.8: upgrades and vertical takeoff
+## New in 0.1.8: forward mist clearing, conventional flight
 
-Expand cargo to **20 or 30 slots**, bind a **Wisp** to clear nearby Mistlands
-mist, and press **V at the helm** for vertical takeoff and hover. VTOL is
-available by default and can be disabled in the config. Reverse now works on
-water, too. **Shift + E on the unoccupied helm** opens upgrades and an unstuck
-action that lifts and levels a parked aircraft when there is clear space above.
+The bound wisp now clears a **35-metre radius**, centred about **20 feet
+(6.1 metres) beyond the nose**. The visible wisp stays on the plane; its clearing
+area follows the aircraft's heading to open the mist ahead before you reach it.
+Previously purchased wisp upgrades gain the new coverage automatically.
 
-This release separates overlapping wing surfaces and replaces the wing's
-building material to address flashing and weather-related whitening. It also
-stops distant aircraft physics from running without loaded terrain, protecting
-parked aircraft when you leave and return to their area.
+**VTOL has been removed.** Take off using normal forward flight. The mod no
+longer uses V, so Valheim's auto-pickup toggle works normally. Old VTOL config
+entries and saved hover flags are ignored; there is no hover mode to enable.
 
-Durability remains **off by default**. Existing aircraft, cargo and custom
-settings carry forward; update every client and the server together.
+Cargo upgrades, water reverse, unstuck and the previous wing/streaming fixes
+remain. Durability is still **off by default**. Update every client and server
+together, preserving your edited config. This revised package keeps version
+**0.1.8**: replace the DLL on every client and server even if 0.1.8 is already installed.
 
 ## Features
 
@@ -36,8 +36,8 @@ settings carry forward; update every client and the server together.
   everyone leaves, power cuts out and the plane slows and descends.
 - **10 storage slots**, upgradeable to **20 or 30** per aircraft. Cargo saves
   with the plane and drops when you dismantle it.
-- Optional bound wisp clears mist within **25 metres** of the plane.
-- Toggleable vertical takeoff/hover and a collision-checked unstuck action.
+- Optional bound wisp clears a **35-metre radius ahead of the plane**.
+- A collision-checked unstuck action for parked aircraft.
 - An **indestructible-by-default** hull, optional configurable durability, and unlimited core power. Collisions still apply;
   hammer dismantling remains available. The hull floats for water landings.
 
@@ -118,22 +118,18 @@ Your character must discover the recipe materials first.
 | Deer Hide | 20 |
 | Surtling Core | 8 |
 
-## Edit VTOL, durability, health, recipe, and speed
+## Edit durability, health, recipe, and speed
 
 Open `BepInEx/plugins/Skyfarer/Skyfarer.cfg` with any text editor **before
 starting the game or server**. Keep it beside `Wise.Skyfarer.dll`:
 
 ```ini
 [Aircraft]
-VtolEnabled = true
 DurabilityEnabled = false
 MaxHealth = 1800
 TopSpeed = 22
 Recipe = FineWood:80,Copper:25,DeerHide:20,SurtlingCore:8
 ```
-
-`VtolEnabled = true` allows the pilot to toggle VTOL with V. Set it to `false`
-to disable VTOL for everyone on that server. Conventional flight remains available.
 
 `DurabilityEnabled = false` keeps the plane immune to damage. Set it to `true`
 to allow damage and destruction. `MaxHealth` sets its maximum health, from **1
@@ -142,9 +138,9 @@ Structural and roof-exposure wear remain disabled so flight needs no building
 supports or roof. Changing the maximum preserves current health percentage;
 disabling durability prevents further damage but does not heal existing damage.
 
-Older config files automatically gain missing settings on startup without
-changing your existing values or comments. You can also add `VtolEnabled = true`
-under `[Aircraft]` before starting the updated game/server.
+Older config files automatically gain missing durability/health settings without
+changing your existing values or comments. Any old `VtolEnabled` entry is unused
+and can be removed; VTOL is no longer part of the mod.
 
 `TopSpeed` is the powered target in metres per second, from **10 to 100**.
 It affects forward flight and wheel drive; reverse stays at 4 m/s. Dedicated
@@ -174,7 +170,6 @@ the mod creates it with defaults. Preserve your edited file when updating.
 | A / D | Roll in flight; steer wheels on land |
 | Q / E while piloting | Rudder; also steers wheels on land |
 | Hold R | Reverse on land or water, up to 4 m/s |
-| V at the helm | Toggle VTOL / conventional flight |
 | Shift + E on the unoccupied helm | Open upgrades and unstuck services |
 | Hold right mouse button | Wheel brakes / stop water reverse |
 | Space | Leave the seat |
@@ -196,23 +191,18 @@ attacking, dodging, and crouching do not eject the pilot.
   and boarding it again leaves the engine off until throttle is raised.
 
 These controls assume default game bindings. Throttle, pitch, roll, brakes,
-and dismount use their corresponding game actions; Q/E, R and V are dedicated keys.
+and dismount use their corresponding game actions; Q/E and R are dedicated keys. V remains Valheim's normal auto-pickup toggle.
 
-## VTOL and upgrades
-
-**VTOL:** board the helm and press V. Shift rises, Ctrl descends, W/S moves
-forward/back, and A/D or Q/E turns. Release the controls to hover. VTOL levels
-the wings, climbs/descends at up to 4 m/s and moves horizontally at up to 5 m/s.
-Press V again for conventional flight, then raise throttle with Shift. Leaving
-the pilot seat ends active hover; park and land before stepping off.
+## Upgrades and unstuck
 
 **Upgrades:** put the materials in the aircraft's cargo chest, close the chest,
 then stand near the unoccupied front chair and press Shift + E. Choose:
 
 - **Expand cargo:** 20 Fine Wood + 10 Copper per expansion. The first gives
   20 slots, the second 30. Each plane tracks its own upgrades.
-- **Bind Wisp:** costs 1 Wisp. A visible wisp clears nearby Mistlands mist while
-  following the aircraft; it does not reveal the whole biome or map.
+- **Bind Wisp:** costs 1 Wisp. A visible wisp stays aboard while a 35-metre clearing
+  radius is centred about 20 feet beyond the nose. It does not reveal the whole
+  biome or map.
 
 Upgrades and items in the added slots persist through travel, ownership changes
 and world saves. Upgrade materials are consumed and are not refunded when the
@@ -240,8 +230,8 @@ for earlier versions.
 ## Testing and support
 
 Version 0.1.5 was tested with Windows and Linux clients on a dedicated server
-with four people. Version 0.1.8 passed **193 gameplay regression checks**,
-**45 feature checks**, **25 separate-process reload checks**, and **6 dedicated
+with four people. Version 0.1.8 passed **195 gameplay regression checks**,
+**43 feature checks**, **25 separate-process reload checks**, and **6 dedicated
 server startup/shutdown checks** on Linux Valheim l-1.0.21. The wing rendering
 was also inspected in a game-rendered preview. A new multi-client flight and
 Windows runtime test have not been performed for this update.

@@ -5,6 +5,10 @@ namespace Wise.Skyfarer;
 
 internal class AircraftServices : MonoBehaviour
 {
+    internal const float MistRadius = 35f;
+    // The nose is about 4.5 m ahead of the root. Centre the clear volume
+    // another 6.1 m (20 feet) beyond it, while keeping the visible wisp aboard.
+    internal static readonly Vector3 MistOffset = new Vector3(0, 0, 8.2f);
     private Aircraft plane;
     private bool menu;
     private static AircraftServices active;
@@ -30,10 +34,10 @@ internal class AircraftServices : MonoBehaviour
         if (nativeMist)
         {
             var clearing = Instantiate(nativeMist.gameObject, wisp.transform, false);
-            clearing.transform.localPosition = Vector3.zero;
+            clearing.transform.localPosition = MistOffset;
             clearing.SetActive(true);
             Mist = clearing.GetComponent<Demister>();
-            Mist.m_forceField.endRange = 25;
+            Mist.m_forceField.endRange = MistRadius;
         }
         else
         {

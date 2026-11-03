@@ -126,6 +126,9 @@ public class RuntimeSmoke : MonoBehaviour
         var plane = root.GetComponent<Aircraft>();
         yield return new WaitForFixedUpdate();
         Check(plane.IsValid, "Spawned aircraft has a live ZDO");
+        // Simulate an aircraft saved in the removed hover mode: the full flight
+        // regression must still use conventional controls and gravity.
+        root.GetComponent<ZNetView>().GetZDO().Set("skyfarer.vtol", true);
         Check(root.GetComponent<ZNetView>().GetZDO().GetPrefab() == AircraftFactory.PrefabName.GetStableHashCode(), "Prefab ID registered for saving");
         Check(ObjectDB.instance.GetItemPrefab("Hammer").GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces.m_pieces.Contains(AircraftFactory.Prefab), "Crafting recipe registered with the hammer");
         plane.Body.isKinematic = true;

@@ -172,11 +172,6 @@ public partial class Aircraft : MonoBehaviour
     internal void LocalInput(Vector3 move, bool throttleUp, bool throttleDown, bool wheelBrake = false, float rudderInput = 0, bool wheelReverse = false)
     {
         if (!Player.m_localPlayer || !IsValid || Occupant(0) != Player.m_localPlayer.GetPlayerID()) return;
-        if (VtolActive)
-        {
-            LocalVtolInput(move, throttleUp, throttleDown, rudderInput);
-            return;
-        }
         float change = (throttleUp ? 1 : 0) - (throttleDown ? 1 : 0);
         localThrottle = Mathf.Clamp01(localThrottle + change * Time.fixedDeltaTime * .38f);
         if (Time.time < inputTime) return;
@@ -286,7 +281,6 @@ public partial class Aircraft : MonoBehaviour
         }
         view.GetZDO().Set(ThrottleKey, throttle);
         if (body.isKinematic) return;
-        if (VtolActive && Occupant(0) != 0) { StepVtol(dt); return; }
         Gear.Step(Mathf.Clamp(roll + rudder, -1, 1), throttle, brake, reverse);
         // A wing strike or inverted crash must not snap the airframe upright.
         bool grounded = Gear.GroundedCount > 0 && Vector3.Dot(transform.up, Gear.GroundNormal) > .5f;
@@ -369,13 +363,13 @@ public partial class Aircraft : MonoBehaviour
         }
         float x = (Screen.width - 690) / 2f, y = Screen.height - 180;
         GUI.Box(new Rect(x, y, 690, 140), GUIContent.none);
-        GUI.Label(new Rect(x, y + 5, 690, 27), "SURTLING SKYFARER" + (VtolActive ? " — VTOL" : ""), titleStyle);
+        GUI.Label(new Rect(x, y + 5, 690, 27), "SURTLING SKYFARER", titleStyle);
         int passengers = 0;
         for (int i = 1; i < 5; i++) if (Occupant(i) != 0) passengers++;
         float power = view.IsOwner() ? throttle : view.GetZDO().GetFloat(ThrottleKey);
         GUI.Label(new Rect(x, y + 33, 690, 24), $"{(seat.Index == 0 ? "PILOT" : "PASSENGER")}   •   Throttle {power:P0}   •   Speed {body.linearVelocity.magnitude:F0} m/s   •   Passengers {passengers}/4", textStyle);
-        GUI.Label(new Rect(x, y + 59, 690, 23), seat.Index == 0 ? (VtolActive ? "Shift / Ctrl  ascend / descend     W / S  forward / back     A / D  turn" : "Shift / Ctrl  throttle     W / S  nose down / up     A / D  roll") : "Throttle stays set while someone remains aboard.", textStyle);
+        GUI.Label(new Rect(x, y + 59, 690, 23), seat.Index == 0 ? "Shift / Ctrl  throttle     W / S  nose down / up     A / D  roll" : "Throttle stays set while someone remains aboard.", textStyle);
         GUI.Label(new Rect(x, y + 82, 690, 22), (Gear.GroundedCount > 0 ? "A / D or Q / E  wheel steering     •     S  lift off" : "Q / E  rudder     •     Hold pitch / roll for full rotations"), textStyle);
-        GUI.Label(new Rect(x, y + 105, 690, 22), "V  toggle VTOL     •     R  land/water reverse     •     Space  leave seat", textStyle);
+        GUI.Label(new Rect(x, y + 105, 690, 22), "Right mouse  brakes     •     R  land/water reverse     •     Space  leave seat", textStyle);
     }
 }

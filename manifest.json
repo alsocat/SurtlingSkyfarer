@@ -2,7 +2,7 @@
   "name": "SurtlingSkyfarer",
   "version_number": "0.1.8",
   "website_url": "https://github.com/alsocat/SurtlingSkyfarer",
-  "description": "A Surtling-powered aircraft for one pilot and four passengers. Upgrade cargo to 30 slots, bind a mist-clearing wisp, toggle VTOL, reverse on water, and recover stuck planes. Configurable recipe, speed and optional durability.",
+  "description": "A Surtling-powered aircraft for one pilot and four passengers. Upgrade cargo to 30 slots, bind a wisp to clear mist ahead, reverse on water, and recover stuck planes. Configurable recipe, speed and optional durability.",
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.2351",
     "ValheimModding-Jotunn-2.30.2"

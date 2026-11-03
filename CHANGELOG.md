@@ -2,12 +2,21 @@
 
 ## 0.1.8
 
+### Revised after playtesting
+
+- Remove VTOL completely: hover controls, the V-key binding, configuration option and HUD hints. V remains Valheim's auto-pickup toggle.
+- Ignore legacy saved hover flags and obsolete `VtolEnabled` config entries; all aircraft use conventional flight.
+- Increase the bound wisp's clearing radius from 25 to 35 metres and move its centre about 20 feet (6.1 metres) beyond the aircraft's nose. The visible wisp stays aboard.
+- Apply expanded forward mist clearing automatically to existing wisp upgrades, including after world reloads.
+- Preserve cargo upgrades, water reverse, unstuck, durability settings and the wing/streaming fixes.
+
+### Included features and fixes
+
 - Separate front/back wing surfaces and use a cloth item material to address flashing and whitening.
 - Synchronize cargo during physics as well as rendering to avoid lag at low frame rates.
 - Stop hull/cargo distant streaming and suspend aircraft physics until terrain loads, protecting parked aircraft across area reloads.
 - Add per-plane cargo upgrades: 10 → 20 → 30 slots, costing 20 Fine Wood and 10 Copper each. Expanded contents persist through streaming and saves.
-- Bind one Wisp per plane for a native 25-metre mist-clearing effect that follows the aircraft.
-- Add V to toggle vertical takeoff/hover. `VtolEnabled = true` by default; server admins can disable it in the adjacent config.
+- Bind one Wisp per plane for a native 35-metre mist-clearing effect centred about 20 feet beyond the nose.
 - Enable R reverse and braking while floating on water.
 - Add Shift + E at the unoccupied helm for upgrades and unstuck. Unstuck checks occupants, speed, wards, cooldown and destination clearance before lifting/levelling the plane.
 - Keep existing recipes, speed, durability defaults, aircraft and cargo compatible. Update all clients and the server together.

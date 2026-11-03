@@ -64,7 +64,7 @@ SDKs, paths, or source changes can produce a different binary hash; the publishe
 - `SkyfarerSettings` loads the adjacent text config, validates recipes, and mirrors
   settings into Jötunn-managed entries for server synchronization.
 - `LandingGear` provides the four WheelColliders, steering, and wheel visuals.
-- `AircraftUtilities` handles terrain suspension, VTOL, and collision-checked recovery.
+- `AircraftUtilities` handles terrain suspension and collision-checked recovery.
 - `AircraftServices`, `CargoUpgrades`, and `ServiceAccess` provide the service menu,
   persistent upgrades, native mist clearing, and requester-specific ward checks.
 - `CargoHold` and `CargoLinks` add a separately owned chest with a saved GUID
@@ -72,14 +72,19 @@ SDKs, paths, or source changes can produce a different binary hash; the publishe
 
 ## Validation
 
-Version 0.1.8 passed 193 real-game regression checks, 45 feature checks,
+Version 0.1.8 passed 195 real-game regression checks, 43 feature checks,
 25 separate-process reload checks and 6 dedicated-server checks on Linux
 Valheim l-1.0.21. The feature checks cover paid cargo expansion, last-row
-inventory persistence, ward permissions, native mist clearing, grounded VTOL,
+inventory persistence, ward permissions, expanded forward mist clearing, conventional flight,
 water reverse, blocked recovery destinations and repeated area unloading.
 The previous damage, health, flight, ownership, hammer, recipe and speed checks
 remain covered. A game-rendered preview was visually inspected.
-See `release.json` for the exact shipped DLL hash and validation counts.
+The full regression run preceded the requested version-number reset to 0.1.8.
+Decompiling both builds verified that only version metadata/constants changed;
+all gameplay code is identical. The final retained-version DLL passed the feature,
+restart and dedicated-server checks. An additional eight reload checks used an
+original 0.1.8 world to verify previously purchased upgrades gain the new effect.
+See `release.json` for the exact shipped DLL and regression-build hashes.
 Ownership fixtures simulate peer IDs inside one client; no new multi-client
 flight or Windows runtime test was performed for this update.
 
@@ -108,7 +113,7 @@ leaves the plane at half health), then use a test config with
 `SKYFARER_DURABILITY_RELOAD=1` along with `SKYFARER_CONTROL_RELOAD=1`.
 All tests should finish with `SKYFARER_SMOKE_PASS` and no `FAIL` lines.
 
-For the upgrades, VTOL, water reverse, recovery and area-streaming suite, use
+For the upgrades, forward mist clearing, water reverse, recovery and area-streaming suite, use
 `SKYFARER_FEATURES=1` with a separate test directory. Then run it again with
 `SKYFARER_CONTROL_RELOAD=1` to verify the saved upgrades and last-row cargo.
 

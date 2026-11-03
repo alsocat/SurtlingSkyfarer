@@ -7,7 +7,7 @@ internal static class Commands
     {
         new Terminal.ConsoleCommand("skyfarer", "Show Skyfarer controls and test instructions", (Terminal.ConsoleEvent)(args =>
         {
-            args.Context.AddString("Surtling Skyfarer — one pilot + four passenger seats.\nHammer > Transport near a workbench: Recipe and speed: edit Skyfarer.cfg beside Wise.Skyfarer.dll, then restart.\nShift/Ctrl throttle, W/S nose down/up, A/D roll, Q/E rudder, R reverse on land/water, right mouse brakes, Space leave seat.\nHold W/S for loops and A/D for rolls; release to hold attitude. Only Space exits the helm. V toggles VTOL (Shift/Ctrl rise/descend, W/S forward/back).\nShift+E on the unoccupied helm: cargo upgrades, bind a Wisp, or unstuck. Place upgrade materials in cargo first.\nThrottle stays set when you release the keys or leave the helm.\nLocal testing: devcommands, confirmcheats (if requested), then skyfarer_spawn.");
+            args.Context.AddString("Surtling Skyfarer — one pilot + four passenger seats.\nHammer > Transport near a workbench: Recipe and speed: edit Skyfarer.cfg beside Wise.Skyfarer.dll, then restart.\nShift/Ctrl throttle, W/S nose down/up, A/D roll, Q/E rudder, R reverse on land/water, right mouse brakes, Space leave seat.\nHold W/S for loops and A/D for rolls; release to hold attitude. Only Space exits the helm.\nShift+E on the unoccupied helm: cargo upgrades, bind a Wisp, or unstuck. Place upgrade materials in cargo first.\nThrottle stays set when you release the keys or leave the helm.\nLocal testing: devcommands, confirmcheats (if requested), then skyfarer_spawn.");
         }));
         new Terminal.ConsoleCommand("skyfarer_spawn", "Spawn a Skyfarer in front of you for local testing", (Terminal.ConsoleEvent)(args =>
         {

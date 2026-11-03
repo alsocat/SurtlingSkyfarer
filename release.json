@@ -1,18 +1,22 @@
 {
   "version": "0.1.8",
-  "dll_sha256": "125a1b16b21af4ccee652c7550d451c7955946efb3e3aa68f96bef8c67395ee0",
-  "dll_build_time_utc": "2026-11-03T03:57:28.557588+00:00",
+  "revision": "Conventional flight and forward wisp clearing",
+  "dll_sha256": "aa6c45556205fe973ff2ee0d1b88b6fe467f6ae52041cec03b1f0796add530ec",
+  "dll_build_time_utc": "2026-11-03T04:25:43.533355+00:00",
   "tested_game_version": "l-1.0.21",
   "tested_dedicated_server_version": "l-1.0.21",
   "tested_unity_version": "6000.0.75f1",
   "tested_platform": "Linux x86_64",
   "validation": {
-    "gameplay_checks": 193,
-    "feature_checks": 45,
+    "gameplay_checks": 195,
+    "feature_checks": 43,
     "reload_checks": 17,
     "feature_reload_checks": 8,
+    "legacy_upgrade_reload_checks": 8,
     "dedicated_server_checks": 6,
-    "visual_preview_inspected": true,
+    "gameplay_validation_dll_sha256": "d05e253a19679b02c8378dff0117d1dbaaefe22e222479e3e2db9a319f4b6efa",
+    "version_metadata_only_change_after_gameplay": true,
+    "decompiled_gameplay_equivalence_verified": true,
     "multi_client_flight_tested": false,
     "windows_runtime_tested": false
   }

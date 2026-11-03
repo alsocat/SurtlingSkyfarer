@@ -19,7 +19,7 @@ internal static class KeyboardSmoke
         float power = plane.Throttle;
         try
         {
-            foreach (var key in new[] { Key.Q, Key.E, Key.R })
+            foreach (var key in new[] { Key.Q, Key.E, Key.R, Key.V })
             {
                 InputState.Change(keyboard, new KeyboardState(key));
                 float until = Time.time + .2f;
@@ -28,7 +28,11 @@ internal static class KeyboardSmoke
                     plane.Seats[0].ApplyControlls(Vector3.zero, Vector3.forward, false, false, false);
                     yield return new WaitForFixedUpdate();
                 }
-                if (key == Key.R)
+                if (key == Key.V)
+                    check(plane.Rudder == 0 && Mathf.Abs(plane.Throttle - power) < .001f &&
+                        !Traverse.Create(plane).Field("reverse").GetValue<bool>(),
+                        "V does not change aircraft controls or enable hover");
+                else if (key == Key.R)
                     check(Traverse.Create(plane).Field("reverse").GetValue<bool>(), "R key requests ground reverse through the pilot controller");
                 else
                     check(Mathf.Abs(plane.Rudder - (key == Key.E ? 1 : -1)) < .001f,
