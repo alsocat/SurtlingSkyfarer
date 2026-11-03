@@ -1,15 +1,18 @@
 {
-  "version": "0.1.7",
-  "dll_sha256": "acb69993f46d04471ecf71f64ed7eb4058aec392ef1c3800c4a8034442c22563",
-  "dll_build_time_utc": "2026-10-10T19:04:58.424392+00:00",
-  "tested_game_version": "l-1.0.17",
-  "tested_dedicated_server_version": "l-1.0.16",
+  "version": "0.1.8",
+  "dll_sha256": "125a1b16b21af4ccee652c7550d451c7955946efb3e3aa68f96bef8c67395ee0",
+  "dll_build_time_utc": "2026-11-03T03:57:28.557588+00:00",
+  "tested_game_version": "l-1.0.21",
+  "tested_dedicated_server_version": "l-1.0.21",
   "tested_unity_version": "6000.0.75f1",
   "tested_platform": "Linux x86_64",
   "validation": {
-    "gameplay_checks": 192,
+    "gameplay_checks": 193,
+    "feature_checks": 45,
     "reload_checks": 17,
+    "feature_reload_checks": 8,
     "dedicated_server_checks": 6,
+    "visual_preview_inspected": true,
     "multi_client_flight_tested": false,
     "windows_runtime_tested": false
   }

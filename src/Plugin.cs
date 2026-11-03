@@ -17,12 +17,18 @@ namespace Wise.Skyfarer;
 public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "wise.valheim.skyfarer";
-    public const string Version = "0.1.7";
+    public const string Version = "0.1.8";
     internal static ManualLogSource Log;
 
     private void Awake()
     {
         Log = Logger;
+        if (Environment.GetEnvironmentVariable("SKYFARER_SMOKE") == "1" || Environment.GetEnvironmentVariable("SKYFARER_PROBE") == "1")
+        {
+            AudioListener.volume = 0;
+            AudioListener.pause = true;
+            PlayerPrefs.SetFloat("MasterVolume", 0);
+        }
         SkyfarerSettings.Initialize(Config, Info.Location);
         string testSaves = Environment.GetEnvironmentVariable("SKYFARER_TEST_SAVES");
         if ((Environment.GetEnvironmentVariable("SKYFARER_SMOKE") == "1" || Environment.GetEnvironmentVariable("SKYFARER_PLAYTEST") == "1")

@@ -28,7 +28,8 @@ internal class CargoHold : MonoBehaviour
         var sync = prefab.GetComponent<ZSyncTransform>();
         if (sync) Object.DestroyImmediate(sync);
         var nv = prefab.GetComponent<ZNetView>();
-        nv.m_persistent = nv.m_distant = true;
+        nv.m_persistent = true;
+        nv.m_distant = false;
         var container = prefab.GetComponent<Container>();
         container.m_name = "Skyfarer cargo";
         container.m_checkGuardStone = false;
@@ -41,6 +42,7 @@ internal class CargoHold : MonoBehaviour
         // solid body that could push the aircraft or its passengers.
         foreach (var collider in prefab.GetComponentsInChildren<Collider>(true)) collider.isTrigger = true;
         prefab.AddComponent<SkyCargo>();
+        prefab.AddComponent<CargoUpgrades>();
         pm.AddPrefab(new CustomPrefab(prefab, false));
         prefab.SetActive(true);
     }
@@ -70,6 +72,9 @@ internal class CargoHold : MonoBehaviour
         ZDOMan.instance.ForceSendZDO(view.GetZDO().m_uid);
     }
 
+    // Keep the inventory sector and pose current during physics as well as rendering.
+    // Low frame rates can run several physics steps before the next LateUpdate.
+    private void FixedUpdate() => SyncCargo();
     private void LateUpdate() => SyncCargo();
 
     internal void SyncCargo()

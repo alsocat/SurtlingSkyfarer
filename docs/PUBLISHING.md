@@ -2,10 +2,10 @@
 
 This repository includes the C# source, compiled Skyfarer mod, and documentation.
 The download does not bundle BepInEx, Jötunn, game assemblies, or development
-profiles. The current DLL is the tested 0.1.7 build; packaging does not rebuild it.
+profiles. The current DLL is the tested 0.1.8 build; packaging does not rebuild it.
 
 See [BUILDING.md](BUILDING.md) to compile from source. Source files and build
-tools stay in GitHub; the install ZIP contains only the six entries below.
+tools stay in GitHub; the install ZIP contains only the seven entries below.
 
 ## Build the download ZIP
 
@@ -15,7 +15,7 @@ From the repository root, run Python 3:
 python3 scripts/package.py
 ```
 
-This creates `dist/SurtlingSkyfarer-0.1.7.zip` and `dist/SHA256SUMS.txt`.
+This creates `dist/SurtlingSkyfarer-0.1.8.zip` and `dist/SHA256SUMS.txt`.
 The script checks the manifest, icon dimensions, exact DLL checksum, ZIP
 contents, and build timestamp. It uses an explicit list of files:
 
@@ -23,6 +23,7 @@ contents, and build timestamp. It uses an explicit list of files:
 manifest.json
 README.md
 CHANGELOG.md
+LICENSE
 icon.png
 BepInEx/plugins/Skyfarer/Wise.Skyfarer.dll
 BepInEx/plugins/Skyfarer/Skyfarer.cfg
@@ -35,9 +36,9 @@ and [BepInEx folder rules](https://wiki.thunderstore.io/mods/packaging-your-mods
 
 ## GitHub Releases
 
-Create a release for tag `v0.1.7` and attach:
+Create a release for tag `v0.1.8` and attach:
 
-- `dist/SurtlingSkyfarer-0.1.7.zip`
+- `dist/SurtlingSkyfarer-0.1.8.zip`
 - `BepInEx/plugins/Skyfarer/Wise.Skyfarer.dll`
 - `BepInEx/plugins/Skyfarer/Skyfarer.cfg`
 - `dist/SHA256SUMS.txt`
@@ -52,7 +53,7 @@ Use the named release ZIP for installation.
 1. Sign in to Thunderstore and select **wisedev**, the team that owns the
    existing SurtlingSkyfarer listing. This uploads an update to that listing.
 2. Open [Upload package](https://thunderstore.io/package/create).
-3. Upload `dist/SurtlingSkyfarer-0.1.7.zip`.
+3. Upload `dist/SurtlingSkyfarer-0.1.8.zip`.
 4. Select the **Valheim** community and appropriate categories available there.
 5. Preview the README, review the metadata, and submit.
 

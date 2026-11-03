@@ -18,13 +18,14 @@ public class SkySeat : MonoBehaviour, Hoverable, Interactable, IDoodadController
     public string GetHoverText()
     {
         string state = Aircraft && Aircraft.Occupant(Index) != 0 ? "Occupied" : "[<color=yellow><b>$KEY_Use</b></color>] " + (Index == 0 ? "Pilot" : "Sit");
-        return Localization.instance.Localize(GetHoverName() + "\n" + state);
+        return Localization.instance.Localize(GetHoverName() + "\n" + state + (Index == 0 ? "\n[Shift + E] Cargo / wisp upgrades / unstuck" : ""));
     }
     public bool Interact(Humanoid human, bool hold, bool alt)
     {
         if (hold || !(human is Player player) || player != Player.m_localPlayer) return false;
         if (Vector3.Distance(player.transform.position, AttachPoint.position) > 3f || player.IsEncumbered()) return false;
         if (player.IsAttached()) { player.Message(MessageHud.MessageType.Center, "Leave your current seat first."); return false; }
+        if (alt && Index == 0) { Aircraft.GetComponent<AircraftServices>().Open(); return true; }
         Aircraft.RequestSeat(Index);
         return true;
     }
@@ -41,6 +42,7 @@ public class SkySeat : MonoBehaviour, Hoverable, Interactable, IDoodadController
         bool up = allowed && (ZInput.GetButton("Run") || ZInput.GetButton("JoyRun"));
         bool down = allowed && (ZInput.GetButton("Crouch") || ZInput.GetButton("JoyCrouch"));
         float rudder = allowed ? (ZInput.GetKey(KeyCode.E) ? 1 : 0) - (ZInput.GetKey(KeyCode.Q) ? 1 : 0) : 0;
+        if (allowed && ZInput.GetKeyDown(KeyCode.V)) Aircraft.ToggleVtol();
         Aircraft.LocalInput(allowed ? moveDir : Vector3.zero, up, down, allowed && block, rudder, allowed && ZInput.GetKey(KeyCode.R));
     }
     public void OnUseStop(Player player)
@@ -57,7 +59,7 @@ public class SkySeat : MonoBehaviour, Hoverable, Interactable, IDoodadController
         // Ignore the airframe's colliders while seated to avoid fighting its rigidbody.
         player.AttachStart(AttachPoint, Aircraft.gameObject, false, false, true, "attach_chair", new Vector3(Index % 2 == 0 ? .65f : -.65f, .4f, -.3f));
         player.Message(MessageHud.MessageType.Center, Index == 0
-            ? "Shift/Ctrl: throttle  ·  W/S: nose down/up  ·  A/D: roll  ·  Q/E: rudder\nR: ground reverse  ·  Right mouse: brakes  ·  Space: leave seat; engine stops when empty"
+            ? "Shift/Ctrl: throttle  ·  W/S: nose down/up  ·  A/D: roll  ·  Q/E: rudder\nV: toggle VTOL  ·  R: land/water reverse  ·  Right mouse: brakes  ·  Space: leave seat; engine stops when empty"
             : "Passenger " + Index + " / 4  ·  Space: leave seat");
     }
 }

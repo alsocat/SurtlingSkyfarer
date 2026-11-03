@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.8
+
+- Separate front/back wing surfaces and use a cloth item material to address flashing and whitening.
+- Synchronize cargo during physics as well as rendering to avoid lag at low frame rates.
+- Stop hull/cargo distant streaming and suspend aircraft physics until terrain loads, protecting parked aircraft across area reloads.
+- Add per-plane cargo upgrades: 10 → 20 → 30 slots, costing 20 Fine Wood and 10 Copper each. Expanded contents persist through streaming and saves.
+- Bind one Wisp per plane for a native 25-metre mist-clearing effect that follows the aircraft.
+- Add V to toggle vertical takeoff/hover. `VtolEnabled = true` by default; server admins can disable it in the adjacent config.
+- Enable R reverse and braking while floating on water.
+- Add Shift + E at the unoccupied helm for upgrades and unstuck. Unstuck checks occupants, speed, wards, cooldown and destination clearance before lifting/levelling the plane.
+- Keep existing recipes, speed, durability defaults, aircraft and cargo compatible. Update all clients and the server together.
+
 ## 0.1.7
 
 - Add `DurabilityEnabled` (default false) and `MaxHealth` (default 1800) to the adjacent config file.

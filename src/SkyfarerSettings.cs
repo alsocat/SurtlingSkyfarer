@@ -15,6 +15,7 @@ internal static class SkyfarerSettings
     internal static ConfigEntry<float> Speed;
     internal static ConfigEntry<bool> DurabilityEnabled;
     internal static ConfigEntry<int> MaxHealth;
+    internal static ConfigEntry<bool> VtolEnabled;
     internal static float TopSpeed => float.IsNaN(Speed.Value) || float.IsInfinity(Speed.Value)
         ? 22f : Mathf.Clamp(Speed.Value, 10f, 100f);
     internal static void Initialize(ConfigFile config, string pluginPath)
@@ -34,6 +35,8 @@ internal static class SkyfarerSettings
             "False keeps the plane indestructible (default). True enables damage, destruction, and hammer repairs. Restart after editing; server settings apply to everyone.");
         var health = source.Bind("Aircraft", "MaxHealth", 1800,
             "Maximum plane health, 1–1000000 (default 1800). Existing planes preserve their health percentage when this changes. Restart after editing.");
+        var vtol = source.Bind("Aircraft", "VtolEnabled", true,
+            "Allow V to toggle vertical takeoff/hover at the helm. In VTOL, Shift/Ctrl raises/lowers the plane, W/S moves forward/back and A/D turns. Default true. Restart after editing.");
         if (create) source.Save();
         config.SaveOnConfigSet = false;
         Recipe = config.Bind("Aircraft", "Recipe", DefaultRecipe, new ConfigDescription(
@@ -48,6 +51,9 @@ internal static class SkyfarerSettings
         MaxHealth = config.Bind("Aircraft", "Maximum health", 1800, new ConfigDescription(
             "Maximum plane health. Preserves existing health percentage. Synced; server admins only.",
             new AcceptableValueRange<int>(1, 1000000), new ConfigurationManagerAttributes { IsAdminOnly = true }));
+        VtolEnabled = config.Bind("Aircraft", "VTOL enabled", true, new ConfigDescription(
+            "Allow vertical takeoff mode. Synced; server admins only.", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+        VtolEnabled.Value = vtol.Value;
         DurabilityEnabled.Value = durability.Value;
         MaxHealth.Value = health.Value;
         DurabilityEnabled.SettingChanged += (_, _) => AircraftDurability.ApplyAll();
@@ -82,6 +88,9 @@ internal static class SkyfarerSettings
         if (!keys.Contains("MaxHealth")) additions.AddRange(new[] { "",
             "# Maximum plane health: 1–1000000. Existing planes keep their health percentage.",
             "# Restart after editing. Default: 1800.", "MaxHealth = 1800" });
+        if (!keys.Contains("VtolEnabled")) additions.AddRange(new[] { "",
+            "# Allow V at the helm to toggle vertical takeoff/hover. Default true.",
+            "# VTOL: Shift/Ctrl ascend/descend; W/S forward/back; A/D turn. Restart after editing.", "VtolEnabled = true" });
         if (additions.Count == 0) return;
         lines.InsertRange(end, additions);
         File.WriteAllLines(path, lines);

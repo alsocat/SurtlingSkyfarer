@@ -52,6 +52,14 @@ public class RuntimeSmoke : MonoBehaviour
         float wakeDeadline = Time.time + 15;
         while (player.InCutscene() && Time.time < wakeDeadline) yield return null;
         Check(!player.InCutscene(), "Test character finishes its spawn cutscene before interaction checks");
+        if (Environment.GetEnvironmentVariable("SKYFARER_FEATURES") == "1")
+        {
+            yield return FeatureSmoke.Run(player, Check);
+            completed = true;
+            File.AppendAllText(output, "SKYFARER_SMOKE_PASS\n");
+            Application.Quit();
+            yield break;
+        }
         if (Environment.GetEnvironmentVariable("SKYFARER_CONTROL_RELOAD") == "1")
         {
             // The landing rollout can end outside the spawn area's streamed
@@ -162,6 +170,7 @@ public class RuntimeSmoke : MonoBehaviour
         yield return FlyPitch(plane, 1, 0, 40);
         Check(plane && plane.IsValid, "Aircraft survives 45 seconds of continuous airborne flight");
         var cargo = plane.GetComponent<CargoHold>().Cargo;
+        Plugin.Log.LogInfo($"CARGO_FLIGHT present={(bool)cargo} gap={(cargo ? Vector3.Distance(cargo.transform.position, plane.transform.TransformPoint(CargoHold.Offset)) : -1)} wood={(cargo ? cargo.Container.GetInventory().CountItems("$item_wood") : -1)} plane={plane.transform.position}");
         Check(cargo && Vector3.Distance(cargo.transform.position, plane.transform.TransformPoint(CargoHold.Offset)) < .5f &&
             cargo.Container.GetInventory().CountItems("$item_wood") == 7, "Cargo follows the aircraft in flight and retains its contents");
         var wear = plane.GetComponent<WearNTear>();
@@ -214,6 +223,10 @@ public class RuntimeSmoke : MonoBehaviour
         plane.GetComponent<CargoHold>().SyncCargo();
         player.GetComponent<ZSyncTransform>().SyncNow();
         ZNet.instance.SetReferencePosition(player.transform.position);
+        float runwayDeadline = Time.time + 25;
+        while (!ZoneSystem.instance.IsZoneLoaded(ZoneSystem.GetZone(runwayStart)) && Time.time < runwayDeadline) yield return null;
+        Check(ZoneSystem.instance.IsZoneLoaded(ZoneSystem.GetZone(runwayStart)), "Runway terrain has streamed after the synthetic test teleport");
+        plane.SuspendForStreaming(); // Restore the fixture's intentionally kinematic state before enabling physics.
         plane.RequestSeat(0);
         yield return new WaitForSeconds(.3f);
         Check(player && player == Player.m_localPlayer && player.IsAttached(), "Test pilot remains loaded after transfer to the runway");
@@ -223,7 +236,7 @@ public class RuntimeSmoke : MonoBehaviour
         plane.SmokeDrive = true;
         plane.SmokeInput = Vector3.zero;
         yield return new WaitForSeconds(2);
-        Plugin.Log.LogInfo($"GEAR_SETTLE position={plane.transform.position} velocity={plane.Body.linearVelocity} grounded={plane.Gear.GroundedCount}");
+        Plugin.Log.LogInfo($"GEAR_SETTLE position={plane.transform.position} velocity={plane.Body.linearVelocity} grounded={plane.Gear.GroundedCount} frozen={plane.StreamingSuspended} kinematic={plane.Body.isKinematic}");
         Check(plane.Gear.GroundedCount == 4, "All four wagon wheels support the stationary aircraft");
         // Reverse through the normal input RPC, with an idle engine setting.
         var testController = player.GetComponent<PlayerController>();
@@ -265,7 +278,7 @@ public class RuntimeSmoke : MonoBehaviour
         Plugin.Log.LogInfo($"GEAR_STEER headingBefore={headingBefore} headingAfter={plane.transform.eulerAngles.y} position={plane.transform.position}");
         plane.SmokeInput = Vector3.zero;
         yield return new WaitForSeconds(4);
-        Plugin.Log.LogInfo($"GEAR_BRAKE speed={plane.Body.linearVelocity.magnitude} grounded={plane.Gear.GroundedCount}");
+        Plugin.Log.LogInfo($"GEAR_BRAKE speed={plane.Body.linearVelocity.magnitude} grounded={plane.Gear.GroundedCount} frozen={plane.StreamingSuspended} kinematic={plane.Body.isKinematic}");
         Check(plane.Body.linearVelocity.magnitude < 1 && plane.Gear.GroundedCount >= 2, "Wheel brakes stop the aircraft on land");
         float takeoffY = plane.transform.position.y;
         plane.SmokeInput = new Vector3(1, 0, 1);

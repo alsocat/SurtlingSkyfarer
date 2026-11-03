@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Wise.Skyfarer;
 
-public class Aircraft : MonoBehaviour
+public partial class Aircraft : MonoBehaviour
 {
     public SkySeat[] Seats;
     public Transform Propeller;
@@ -64,6 +64,7 @@ public class Aircraft : MonoBehaviour
         view.Register<long, int>("Skyfarer.SeatRelease", RPC_SeatRelease);
         view.Register<long, int>("Skyfarer.Heartbeat", RPC_Heartbeat);
         view.Register<long, Vector3, float, bool, bool>("Skyfarer.Input", RPC_Input);
+        RegisterUtilityRpcs();
         throttle = StoredThrottle();
         AircraftDurability.Apply(this);
         body.centerOfMass = new Vector3(0, -.2f, 0);
@@ -171,6 +172,11 @@ public class Aircraft : MonoBehaviour
     internal void LocalInput(Vector3 move, bool throttleUp, bool throttleDown, bool wheelBrake = false, float rudderInput = 0, bool wheelReverse = false)
     {
         if (!Player.m_localPlayer || !IsValid || Occupant(0) != Player.m_localPlayer.GetPlayerID()) return;
+        if (VtolActive)
+        {
+            LocalVtolInput(move, throttleUp, throttleDown, rudderInput);
+            return;
+        }
         float change = (throttleUp ? 1 : 0) - (throttleDown ? 1 : 0);
         localThrottle = Mathf.Clamp01(localThrottle + change * Time.fixedDeltaTime * .38f);
         if (Time.time < inputTime) return;
@@ -240,6 +246,7 @@ public class Aircraft : MonoBehaviour
         if (IsValid && view.IsOwner() && view.GetZDO().GetFloat(AircraftDurability.MaxHealthKey) != SkyfarerSettings.MaxHealth.Value)
             AircraftDurability.Apply(this);
         if (!IsValid || !view.IsOwner()) { wasOwner = false; return; }
+        if (SuspendForStreaming()) return;
         if (!wasOwner)
         {
             GetComponent<ZSyncTransform>().SyncNow();
@@ -279,6 +286,7 @@ public class Aircraft : MonoBehaviour
         }
         view.GetZDO().Set(ThrottleKey, throttle);
         if (body.isKinematic) return;
+        if (VtolActive && Occupant(0) != 0) { StepVtol(dt); return; }
         Gear.Step(Mathf.Clamp(roll + rudder, -1, 1), throttle, brake, reverse);
         // A wing strike or inverted crash must not snap the airframe upright.
         bool grounded = Gear.GroundedCount > 0 && Vector3.Dot(transform.up, Gear.GroundNormal) > .5f;
@@ -304,7 +312,9 @@ public class Aircraft : MonoBehaviour
         if (grounded && (climb <= 0 || reverse)) support = 0;
         float gravity = Mathf.Max(.1f, -Physics.gravity.y);
         float verticalAccel = gravity * support;
+        bool afloat = !grounded && pos.y < waterLevel + .9f;
         Vector3 desired = forward * (throttle * SkyfarerSettings.TopSpeed);
+        if (afloat) desired = Vector3.ProjectOnPlane(forward, Vector3.up).normalized * (brake ? 0 : reverse ? -4 : throttle * SkyfarerSettings.TopSpeed);
         if (throttle < .15f) desired += Vector3.down * 2.5f;
         if (!grounded)
             body.AddForce(Vector3.ClampMagnitude((desired - velocity) * 2.5f, 40f),
@@ -337,7 +347,9 @@ public class Aircraft : MonoBehaviour
         {
             // Local axes keep every control correct past vertical and upside down.
             // Neutral input holds the current attitude instead of leveling the plane.
-            Vector3 rates = new Vector3(-climb * 45f, rudder * 28f, -roll * 85f) * authority;
+            Vector3 rates = afloat && reverse
+                ? new Vector3(0, -(rudder + roll) * 28f, 0) * Mathf.Max(.3f, authority)
+                : new Vector3(-climb * 45f, rudder * 28f, -roll * 85f) * authority;
             if (rates.sqrMagnitude > .0001f)
                 body.MoveRotation(body.rotation * Quaternion.AngleAxis(rates.magnitude * dt, rates.normalized));
         }
@@ -357,13 +369,13 @@ public class Aircraft : MonoBehaviour
         }
         float x = (Screen.width - 690) / 2f, y = Screen.height - 180;
         GUI.Box(new Rect(x, y, 690, 140), GUIContent.none);
-        GUI.Label(new Rect(x, y + 5, 690, 27), "SURTLING SKYFARER", titleStyle);
+        GUI.Label(new Rect(x, y + 5, 690, 27), "SURTLING SKYFARER" + (VtolActive ? " — VTOL" : ""), titleStyle);
         int passengers = 0;
         for (int i = 1; i < 5; i++) if (Occupant(i) != 0) passengers++;
         float power = view.IsOwner() ? throttle : view.GetZDO().GetFloat(ThrottleKey);
         GUI.Label(new Rect(x, y + 33, 690, 24), $"{(seat.Index == 0 ? "PILOT" : "PASSENGER")}   •   Throttle {power:P0}   •   Speed {body.linearVelocity.magnitude:F0} m/s   •   Passengers {passengers}/4", textStyle);
-        GUI.Label(new Rect(x, y + 59, 690, 23), seat.Index == 0 ? "Shift / Ctrl  throttle     W / S  nose down / up     A / D  roll" : "Throttle stays set while someone remains aboard.", textStyle);
+        GUI.Label(new Rect(x, y + 59, 690, 23), seat.Index == 0 ? (VtolActive ? "Shift / Ctrl  ascend / descend     W / S  forward / back     A / D  turn" : "Shift / Ctrl  throttle     W / S  nose down / up     A / D  roll") : "Throttle stays set while someone remains aboard.", textStyle);
         GUI.Label(new Rect(x, y + 82, 690, 22), (Gear.GroundedCount > 0 ? "A / D or Q / E  wheel steering     •     S  lift off" : "Q / E  rudder     •     Hold pitch / roll for full rotations"), textStyle);
-        GUI.Label(new Rect(x, y + 105, 690, 22), "R  reverse on ground     •     Right mouse  brake     •     Space  leave seat", textStyle);
+        GUI.Label(new Rect(x, y + 105, 690, 22), "V  toggle VTOL     •     R  land/water reverse     •     Space  leave seat", textStyle);
     }
 }

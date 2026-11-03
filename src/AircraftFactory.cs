@@ -28,9 +28,12 @@ internal static class AircraftFactory
         iron = new Material(wood) { name = "Skyfarer forged fittings" };
         iron.SetColor("_Color", new Color(0.23f, 0.24f, 0.23f));
         var sail = karve.GetComponentsInChildren<SkinnedMeshRenderer>(true).First();
-        // Reuse the installed game's cloth texture with its ordinary piece shader.
-        cloth = new Material(wood) { name = "Skyfarer sailcloth" };
+        // Item materials avoid the weather/wetness overlays of building timber.
+        // Keep the sail texture, but do not inherit animated sail deformation.
+        cloth = new Material(pm.GetPrefab("DeerHide").GetComponentsInChildren<MeshRenderer>(true).First(r => r.sharedMaterial && !r.sharedMaterial.shader.name.Contains("Particle")).sharedMaterial) { name = "Skyfarer sailcloth" };
         cloth.mainTexture = sail.sharedMaterial.mainTexture;
+        if (cloth.HasProperty("_Glossiness")) cloth.SetFloat("_Glossiness", 0);
+        if (cloth.HasProperty("_Metallic")) cloth.SetFloat("_Metallic", 0);
         cloth.SetColor("_Color", new Color(0.91f, 0.82f, 0.64f));
         redCloth = new Material(cloth) { name = "Skyfarer oxblood cloth" };
         redCloth.SetColor("_Color", new Color(0.51f, 0.13f, 0.09f));
@@ -81,7 +84,7 @@ internal static class AircraftFactory
         body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         var view = root.GetComponent<ZNetView>();
         view.m_persistent = true;
-        view.m_distant = true;
+        view.m_distant = false; // Do not simulate the aircraft beyond loaded terrain.
         root.GetComponent<ZSyncTransform>().m_syncBodyVelocity = true;
 
         var frame = Child(root.transform, "Skyfarer airframe", Vector3.zero);
@@ -133,6 +136,7 @@ internal static class AircraftFactory
 
         var aircraft = root.AddComponent<Aircraft>();
         root.AddComponent<CargoHold>();
+        root.AddComponent<AircraftServices>();
         aircraft.Gear = AddWagonWheels(root, frame);
         aircraft.Propeller = prop;
         aircraft.EngineLight = core.GetComponentInChildren<Light>();
@@ -324,7 +328,10 @@ internal static class AircraftFactory
         var mesh = new Mesh { name = name };
         var v = new[] { a, b, c, d, mid };
         // Duplicate vertices so the back face has its own normals.
-        mesh.vertices = v.Concat(v).ToArray();
+        Vector3 normal = Vector3.Cross(b - a, d - a).normalized;
+        // Separate both cloth surfaces: some game shaders render both sides.
+        // Coplanar opposite normals previously fought in the depth buffer.
+        mesh.vertices = v.Select(p => p + normal * .006f).Concat(v.Select(p => p - normal * .006f)).ToArray();
         mesh.uv = new[] { new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1), new Vector2(.5f, .5f),
             new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1), new Vector2(.5f, .5f) };
         mesh.triangles = new[] { 0,1,4, 1,2,4, 2,3,4, 3,0,4, 5,9,6, 6,9,7, 7,9,8, 8,9,5 };
